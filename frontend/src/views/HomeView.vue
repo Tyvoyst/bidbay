@@ -3,12 +3,13 @@ import { ref, computed } from "vue";
 
 const loading = ref(false);
 const error = ref(false);
-
+let productList = ref([])
 async function fetchProducts() {
   loading.value = true;
   error.value = false;
-
   try {
+    const res = await fetch("http://localhost:3000/api/products");
+    productList.value = await res.json()
   } catch (e) {
     error.value = true;
   } finally {
@@ -72,9 +73,9 @@ fetchProducts();
       Une erreur est survenue lors du chargement des produits.
     </div>
     <div class="row">
-      <div class="col-md-4 mb-4" v-for="i in 10" data-test-product :key="i">
+      <div class="col-md-4 mb-4" v-for="i in productList" data-test-product :key="i">
         <div class="card">
-          <RouterLink :to="{ name: 'Product', params: { productId: 'TODO' } }">
+          <RouterLink :to="{ name: 'Product', params: { productId: i.id } }">
             <img
               src="https://picsum.photos/id/403/512/512"
               data-test-product-picture
@@ -85,8 +86,9 @@ fetchProducts();
             <h5 class="card-title">
               <RouterLink
                 data-test-product-name
-                :to="{ name: 'Product', params: { productId: 'TODO' } }"
+                :to="{ name: 'Product', params: { productId: i.id } }"
               >
+                {{ i.name }}
                 Machine à écrire
               </RouterLink>
             </h5>
@@ -97,15 +99,15 @@ fetchProducts();
               Vendeur :
               <RouterLink
                 data-test-product-seller
-                :to="{ name: 'User', params: { userId: 'TODO' } }"
+                :to="{ name: 'User', params: { userId: i.sellerId } }"
               >
-                alice
+                {{ i.sellerId }}
               </RouterLink>
             </p>
             <p class="card-text" data-test-product-date>
-              En cours jusqu'au 05/04/2026
+              En cours jusqu'au {{ i.endDate }}
             </p>
-            <p class="card-text" data-test-product-price>Prix actuel : 42 €</p>
+            <p class="card-text" data-test-product-price>Prix actuel : {{ i.originalPrice }} €</p>
           </div>
         </div>
       </div>
