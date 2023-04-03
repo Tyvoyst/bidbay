@@ -16,8 +16,11 @@ async function fetchProducts() {
     loading.value = false;
   }
 }
-
 fetchProducts();
+function formatDate(date) {
+    const options = { year: "numeric", month: "long", day: "numeric" };
+    return new Date(date).toLocaleDateString("fr-FR", options);
+}
 </script>
 
 <template>
@@ -104,7 +107,7 @@ fetchProducts();
               </RouterLink>
             </p>
             <p class="card-text" data-test-product-date>
-              En cours jusqu'au {{ i.endDate }}
+              En cours jusqu'au {{ formatDate(i.endDate) }}
             </p>
             <p class="card-text" data-test-product-price>Prix actuel : {{ i.originalPrice }} €</p>
           </div>
