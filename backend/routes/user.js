@@ -5,7 +5,7 @@ const router = express.Router()
 
 router.get('/api/users/:userId', async (req, res) => {
   try {
-    res.json(await User.findOne({ 
+    const user = await User.findOne({ 
       where: { id: req.params.userId },
       include: [
         { 
@@ -19,7 +19,7 @@ router.get('/api/users/:userId', async (req, res) => {
           attributes: [
             'id',
             'price',
-            'createdAt',
+            'date',
           ],
           include: [
             {
@@ -30,8 +30,10 @@ router.get('/api/users/:userId', async (req, res) => {
           ]
         }
     ]
-    }))
-    res.status(600).send()
+    })
+
+    if(!user) return res.status(404).send({ message: "User not found" })
+    res.status(200).send(user)
   } catch (error) {
     return res.status(400).json({ error })
   }
