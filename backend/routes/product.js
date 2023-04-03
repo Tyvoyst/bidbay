@@ -38,9 +38,6 @@ router.get('/api/products/:productId', async (req, res) => {
           {
             model: Bid,
             as: 'bids',
-<<<<<<< HEAD
-            attributes: ['id','price','date'],
-=======
             attributes: ['id','price','createdAt'],
             include: [
               { 
@@ -48,7 +45,6 @@ router.get('/api/products/:productId', async (req, res) => {
                 as: 'bidder',
                 attributes: ['id','username'],
               }]
->>>>>>> backend/product-seller
           }
       ]
     })
