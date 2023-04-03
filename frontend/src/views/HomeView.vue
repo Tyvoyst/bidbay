@@ -98,9 +98,9 @@ fetchProducts();
               Vendeur :
               <RouterLink
                 data-test-product-seller
-                :to="{ name: 'User', params: { userId: i.sellerId } }"
+                :to="{ name: 'User', params: { userId: i.seller.id } }"
               >
-                {{ i.sellerId }}
+                {{ i.seller.username }}
               </RouterLink>
             </p>
             <p class="card-text" data-test-product-date>
