@@ -12,12 +12,25 @@ const productId = ref(route.params.productId);
 const loading = ref(false);
 const error = ref(false);
 let product = ref();
+let user = ref();
 async function fetchProduct() {
     loading.value = true;
     error.value = false;
     try {
         const res = await fetch("http://localhost:3000/api/products/"+productId.value);
         product.value = await res.json()
+    } catch (e) {
+        error.value = true;
+    } finally {
+        loading.value = false;
+    }
+}
+async function fetchUser(id){
+    loading.value = true;
+    error.value = false;
+    try {
+        const res = await fetch("http://localhost:3000/api/user/"+id);
+        return await res.json()
     } catch (e) {
         error.value = true;
     } finally {
@@ -122,10 +135,10 @@ function formatDate(date) {
             <tr v-for="i in product.bids" :key="i" data-test-bid>
               <td>
                 <router-link
-                  :to="{ name: 'User', params: { userId: product.seller.id } }"
+                  :to="{ name: 'User', params: { userId: i.id } }"
                   data-test-bid-bidder
                 >
-                    {{ product.seller.username }}
+                    {{fetchUser(i.id)}}
                 </router-link>
               </td>
               <td data-test-bid-price>{{ i.price }} €</td>

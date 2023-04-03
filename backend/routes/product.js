@@ -6,12 +6,17 @@ import { getDetails } from '../validators/index.js'
 const router = express.Router()
 
 router.get('/api/products', async (req, res, next) => {
-  const products = await Product.findAll({ 
+  const products = await Product.findAll({
     include: [
-      { 
-        model: User, 
+      {
+        model: User,
         as: 'seller',
-        attributes: ['id','username']
+        attributes: ['id', 'username']
+      },
+      {
+        model: Bid,
+        as: 'bids',
+        attributes: ['id', 'price', 'date']
       }
     ]
   })
@@ -21,14 +26,18 @@ router.get('/api/products', async (req, res, next) => {
 
 router.get('/api/products/:productId', async (req, res) => {
   try {
-    const product = await Product.findOne({ 
-      where: { id: req.params.productId }, 
+    const product = await Product.findOne({
+      where: { id: req.params.productId },
       include: [
-        { 
-          model: User, 
+        {
+          model: User,
           as: 'seller',
-          attributes: ['id','username'],
-          //where: { id: req.params.sellerId }
+          attributes: ['id', 'username']
+        },
+        {
+          model: Bid,
+          as: 'bids',
+          attributes: ['id', 'price', 'date']
         }
       ]
     })
