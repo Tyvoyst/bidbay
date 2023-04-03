@@ -9,11 +9,28 @@ const route = useRoute();
 const router = useRouter();
 
 const productId = ref(route.params.productId);
+const loading = ref(false);
+const error = ref(false);
+let product = ref();
+async function fetchProduct() {
+    loading.value = true;
+    error.value = false;
+    try {
+        const res = await fetch("http://localhost:3000/api/products/"+productId.value);
+        product.value = await res.json()
+    } catch (e) {
+        error.value = true;
+    } finally {
+        loading.value = false;
+    }
+}
 
+fetchProduct();
 function formatDate(date) {
   const options = { year: "numeric", month: "long", day: "numeric" };
   return new Date(date).toLocaleDateString("fr-FR", options);
 }
+
 </script>
 
 <template>
@@ -53,12 +70,12 @@ function formatDate(date) {
         <div class="row">
           <div class="col-lg-6">
             <h1 class="mb-3" data-test-product-name>
-              Appareil photo argentique
+                {{ product.name }}
             </h1>
           </div>
           <div class="col-lg-6 text-end">
             <RouterLink
-              :to="{ name: 'ProductEdition', params: { productId: 'TODO' } }"
+              :to="{ name: 'ProductEdition', params: { productId: productId } }"
               class="btn btn-primary"
               data-test-edit-product
             >
@@ -73,21 +90,20 @@ function formatDate(date) {
 
         <h2 class="mb-3">Description</h2>
         <p data-test-product-description>
-          Appareil photo argentique classique, parfait pour les amateurs de
-          photographie
+            {{ product.description }}
         </p>
 
         <h2 class="mb-3">Informations sur l'enchère</h2>
         <ul>
-          <li data-test-product-price>Prix de départ : 17 €</li>
-          <li data-test-product-end-date>Date de fin : 20 juin 2026</li>
+          <li data-test-product-price>Prix de départ : {{ product.originalPrice }} €</li>
+          <li data-test-product-end-date>Date de fin : {{ formatDate(product.endDate) }}</li>
           <li>
             Vendeur :
             <router-link
-              :to="{ name: 'User', params: { userId: 'TODO' } }"
+              :to="{ name: 'User', params: { userId: product.seller.id } }"
               data-test-product-seller
             >
-              alice
+                {{ product.seller.username }}
             </router-link>
           </li>
         </ul>
@@ -103,17 +119,17 @@ function formatDate(date) {
             </tr>
           </thead>
           <tbody>
-            <tr v-for="i in 10" :key="i" data-test-bid>
+            <tr v-for="i in product.bids" :key="i" data-test-bid>
               <td>
                 <router-link
-                  :to="{ name: 'User', params: { userId: 'TODO' } }"
+                  :to="{ name: 'User', params: { userId: product.seller.id } }"
                   data-test-bid-bidder
                 >
-                  charly
+                    {{ product.seller.username }}
                 </router-link>
               </td>
-              <td data-test-bid-price>43 €</td>
-              <td data-test-bid-date>22 mars 2026</td>
+              <td data-test-bid-price>{{ i.price }} €</td>
+              <td data-test-bid-date>{{ formatDate(i.date) }}</td>
               <td>
                 <button class="btn btn-danger btn-sm" data-test-delete-bid>
                   Supprimer
