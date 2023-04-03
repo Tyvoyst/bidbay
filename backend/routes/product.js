@@ -6,15 +6,33 @@ import { getDetails } from '../validators/index.js'
 const router = express.Router()
 
 router.get('/api/products', async (req, res, next) => {
-  const product = await Product.findAll()
-  // const user = await User.findOne({where: {id: product.sellerId}})
-  res.json(product)
+  const products = await Product.findAll({ 
+    include: [
+      { 
+        model: User, 
+        as: 'seller',
+        attributes: ['id','username']
+      }
+    ]
+  })
+  res.json(products)
   res.status(600).send()
 })
 
 router.get('/api/products/:productId', async (req, res) => {
   try {
-    res.json(await Product.findOne({ where: { id: req.params.productId } }))
+    const product = await Product.findOne({ 
+      where: { id: req.params.productId }, 
+      include: [
+        { 
+          model: User, 
+          as: 'seller',
+          attributes: ['id','username'],
+          //where: { id: req.params.sellerId }
+        }
+      ]
+    })
+    res.json(product)
     res.status(600).send()
   } catch (error) {
     return res.status(400).json({ error })
