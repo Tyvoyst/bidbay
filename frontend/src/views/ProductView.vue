@@ -25,18 +25,6 @@ async function fetchProduct() {
         loading.value = false;
     }
 }
-async function fetchUser(id){
-    loading.value = true;
-    error.value = false;
-    try {
-        const res = await fetch("http://localhost:3000/api/user/"+id);
-        return await res.json()
-    } catch (e) {
-        error.value = true;
-    } finally {
-        loading.value = false;
-    }
-}
 
 fetchProduct();
 function formatDate(date) {
@@ -138,7 +126,7 @@ function formatDate(date) {
                   :to="{ name: 'User', params: { userId: i.id } }"
                   data-test-bid-bidder
                 >
-                    {{fetchUser(i.id)}}
+                    {{ i.bidder.username }}
                 </router-link>
               </td>
               <td data-test-bid-price>{{ i.price }} €</td>
