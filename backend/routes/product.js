@@ -63,8 +63,8 @@ router.post('/api/products', authMiddleware, (req, res) => {
       category: req.body.category,
       originalPrice: req.body.originalPrice,
       pictureUrl: req.body.pictureUrl,
-      startDate : req.body.startDate,
-      endDate: req.user.endDate,
+      startDate : now(),
+      endDate: now(),
 
     }
   )
