@@ -13,7 +13,14 @@ router.get('/api/products', async (req, res, next) => {
         as: 'seller',
         attributes: ['id','username']
       }
-    ]
+    ],
+    include: [
+      {
+        model: Bid,
+        as: 'bids',
+        attributes: ['id','price','createdAt'],
+      }
+  ]
   })
   res.json(products)
   res.status(600).send()
@@ -29,7 +36,13 @@ router.get('/api/products/:productId', async (req, res) => {
           as: 'seller',
           attributes: ['id','username'],
           //where: { id: req.params.sellerId }
-        }
+        }],
+        include: [
+          {
+            model: Bid,
+            as: 'bids',
+            attributes: ['id','price','createdAt'],
+          }
       ]
     })
     res.json(product)
