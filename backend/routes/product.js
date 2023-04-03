@@ -12,13 +12,11 @@ router.get('/api/products', async (req, res, next) => {
         model: User, 
         as: 'seller',
         attributes: ['id','username']
-      }
-    ],
-    include: [
+      },
       {
         model: Bid,
         as: 'bids',
-        attributes: ['id','price','createdAt'],
+        attributes: ['id','price','date'],
       }
   ]
   })
@@ -36,12 +34,11 @@ router.get('/api/products/:productId', async (req, res) => {
           as: 'seller',
           attributes: ['id','username'],
           //where: { id: req.params.sellerId }
-        }],
-        include: [
+        },
           {
             model: Bid,
             as: 'bids',
-            attributes: ['id','price','createdAt'],
+            attributes: ['id','price','date'],
           }
       ]
     })
