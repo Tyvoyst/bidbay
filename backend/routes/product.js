@@ -36,12 +36,17 @@ router.get('/api/products/:productId', async (req, res) => {
           as: 'seller',
           attributes: ['id','username'],
           //where: { id: req.params.sellerId }
-        }],
-        include: [
+        },
           {
             model: Bid,
             as: 'bids',
             attributes: ['id','price','createdAt'],
+            include: [
+              { 
+                model: User, 
+                as: 'bidder',
+                attributes: ['id','username'],
+              }]
           }
       ]
     })
@@ -55,20 +60,26 @@ router.get('/api/products/:productId', async (req, res) => {
 // You can use the authMiddleware with req.user.id to authenticate your endpoint ;)
 
 router.post('/api/products', authMiddleware, (req, res) => {
-  Product.create(
-    {
-      id: req.body.id,
-      name: req.body.name,
-      description: req.body.description,
-      category: req.body.category,
-      originalPrice: req.body.originalPrice,
-      pictureUrl: req.body.pictureUrl,
-      startDate : now(),
-      endDate: now(),
-
+  try{
+    if(req.body.name != undefined){
+      const product = Product.create(
+        {
+          name: req.body.name,
+          description: req.body.description,
+          pictureUrl: req.body.pictureUrl,
+          category: req.body.category,
+          originalPrice: req.body.originalPrice,
+          startDate : req.body.startDate,
+          endDate: req.body.endDate,
+          sellerId: req.user.id
+        }
+      )
     }
-  )
-  res.status(600).send()
+    res.json(product)
+    res.status(201).send()
+  }catch(error){
+    return res.status(400).json({ error })
+  }
 })
 
 router.put('/api/products/:productId', async (req, res) => {
