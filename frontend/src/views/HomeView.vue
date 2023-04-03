@@ -77,7 +77,7 @@ fetchProducts();
         <div class="card">
           <RouterLink :to="{ name: 'Product', params: { productId: i.id } }">
             <img
-              src="https://picsum.photos/id/403/512/512"
+              :src="i.pictureUrl"
               data-test-product-picture
               class="card-img-top"
             />
@@ -89,11 +89,10 @@ fetchProducts();
                 :to="{ name: 'Product', params: { productId: i.id } }"
               >
                 {{ i.name }}
-                Machine à écrire
               </RouterLink>
             </h5>
             <p class="card-text" data-test-product-description>
-              Machine à écrire vintage en parfait état de fonctionnement
+                {{ i.description }}
             </p>
             <p class="card-text">
               Vendeur :
