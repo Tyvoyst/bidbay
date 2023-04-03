@@ -2,6 +2,7 @@ import express from 'express'
 import { Product, Bid, User } from '../orm/index.js'
 import authMiddleware from '../middlewares/auth.js'
 import { getDetails } from '../validators/index.js'
+import { BaseError } from 'sequelize'
 
 const router = express.Router()
 
@@ -57,27 +58,14 @@ router.get('/api/products/:productId', async (req, res) => {
 
 // You can use the authMiddleware with req.user.id to authenticate your endpoint ;)
 
-router.post('/api/products', authMiddleware, (req, res) => {
+router.post('/api/products', authMiddleware, async (req, res) => {
   try{
-    if(req.body.name != undefined){
-      const product = Product.create(
-        {
-          name: req.body.name,
-          description: req.body.description,
-          pictureUrl: req.body.pictureUrl,
-          category: req.body.category,
-          originalPrice: req.body.originalPrice,
-          startDate : req.body.startDate,
-          endDate: req.body.endDate,
-          sellerId: req.user.id
-        }
-      )
-    }
-    res.json(product)
-    res.status(201).send()
+    req.body.sellerId = req.user.id
+    res.status(201).send(await Product.create(req.body))
   }catch(error){
-    return res.status(400).json({ error })
+    return res.status(400).json({ error :"Invalid or missing fields", details: error },)
   }
+  return res.status(600).send()
 })
 
 router.put('/api/products/:productId', async (req, res) => {
@@ -85,6 +73,13 @@ router.put('/api/products/:productId', async (req, res) => {
 })
 
 router.delete('/api/products/:productId', async (req, res) => {
+  if(!req.params.productId) return res.status(404).send({ message: "Product not found" })
+  try{
+    Product.destroy({ where: { id: req.params.productId } })
+    res.status(204).send({ message: "Product deleted"})
+  }catch(error){
+    return res.status(400).json({ error })
+  }
   res.status(600).send()
 })
 
