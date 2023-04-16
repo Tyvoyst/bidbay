@@ -2,7 +2,7 @@ const { spawn } = require("child_process");
 const express = require("express");
 const { resolve } = require("path")
 
-const child = spawn("npx", ["vite", "build", "--watch"], {  env: process.env  })
+const child = spawn("npx", ["vite", "build", "--watch"], {  env: process.env, shell:true  })
 
 child.stdout.on('data', (data) => {
   console.log(data);

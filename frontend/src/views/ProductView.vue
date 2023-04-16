@@ -14,24 +14,24 @@ const error = ref(false);
 let product = ref();
 let user = ref();
 async function fetchProduct() {
-    loading.value = true;
-    error.value = false;
-    try {
-        const res = await fetch("http://localhost:3000/api/products/"+productId.value);
-        product.value = await res.json()
-    } catch (e) {
-        error.value = true;
-    } finally {
-        loading.value = false;
-    }
+  loading.value = true;
+  error.value = false;
+  try {
+    const res = await fetch(
+      "http://localhost:3000/api/products/" + productId.value
+    );
+    product.value = await res.json();
+  } catch (e) {
+    error.value = true;
+  } finally {
+    loading.value = false;
+  }
 }
-
 fetchProduct();
 function formatDate(date) {
   const options = { year: "numeric", month: "long", day: "numeric" };
   return new Date(date).toLocaleDateString("fr-FR", options);
 }
-
 </script>
 
 <template>
@@ -49,7 +49,7 @@ function formatDate(date) {
       <!-- Colonne de gauche : image et compte à rebours -->
       <div class="col-lg-4">
         <img
-          :src='product.pictureUrl'
+          :src="product.pictureUrl"
           alt=""
           class="img-fluid rounded mb-3"
           data-test-product-picture
@@ -71,7 +71,7 @@ function formatDate(date) {
         <div class="row">
           <div class="col-lg-6">
             <h1 class="mb-3" data-test-product-name>
-                {{ product.name }}
+              {{ product.name }}
             </h1>
           </div>
           <div class="col-lg-6 text-end">
@@ -91,20 +91,24 @@ function formatDate(date) {
 
         <h2 class="mb-3">Description</h2>
         <p data-test-product-description>
-            {{ product.description }}
+          {{ product.description }}
         </p>
 
         <h2 class="mb-3">Informations sur l'enchère</h2>
         <ul>
-          <li data-test-product-price>Prix de départ : {{ product.originalPrice }} €</li>
-          <li data-test-product-end-date>Date de fin : {{ formatDate(product.endDate) }}</li>
+          <li data-test-product-price>
+            Prix de départ : {{ product.originalPrice }} €
+          </li>
+          <li data-test-product-end-date>
+            Date de fin : {{ formatDate(new Date(product.endDate)) }}
+          </li>
           <li>
             Vendeur :
             <router-link
               :to="{ name: 'User', params: { userId: product.seller.id } }"
               data-test-product-seller
             >
-                {{ product.seller.username }}
+              {{ product.seller.username }}
             </router-link>
           </li>
         </ul>
@@ -126,11 +130,11 @@ function formatDate(date) {
                   :to="{ name: 'User', params: { userId: i.id } }"
                   data-test-bid-bidder
                 >
-                    {{ i.bidder.username }}
+                  {{ i.bidder.username }}
                 </router-link>
               </td>
               <td data-test-bid-price>{{ i.price }} €</td>
-              <td data-test-bid-date>{{ formatDate(i.date) }}</td>
+              <td data-test-bid-date>{{ formatDate(i.createdAt) }}</td>
               <td>
                 <button class="btn btn-danger btn-sm" data-test-delete-bid>
                   Supprimer

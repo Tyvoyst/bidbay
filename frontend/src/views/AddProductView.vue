@@ -1,13 +1,55 @@
 <script setup>
 import { useAuthStore } from "../store/auth";
-import { useRouter } from "vue-router";
-import { ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { ref, computed } from "vue";
 
+const route = useRoute();
 const { isAuthenticated, token } = useAuthStore();
 const router = useRouter();
-
 if (!isAuthenticated.value) {
   router.push({ name: "Login" });
+}
+let product_name = ref("");
+let product_description = ref("");
+let product_category = ref("");
+let product_original_price = ref("");
+let product_picture_url = ref("");
+let product_end_date = ref("");
+
+const disableButton = computed(() => {
+  return (
+    product_name.value.length > 0 &&
+    product_description.value.length > 0 &&
+    product_category.value.length &&
+    product_original_price.value > 0 &&
+    product_picture_url.value.length > 0 &&
+    product_end_date.value.length > 0
+  );
+});
+async function postProduct() {
+  const res = await fetch("http://localhost:3000/api/products", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      name: product_name.value,
+      description: product_description.value,
+      category: product_category.value,
+      originalPrice: product_original_price.value,
+      pictureUrl: product_picture_url.value,
+      endDate: product_end_date.value,
+      sellerId: route.params.userId,
+      createdAt: Date(),
+      updatedAt: Date(),
+      seller: {
+        id: route.params.userId,
+        username: route.params.username,
+      },
+      bids: [],
+    }),
+  });
+  return await res.json();
 }
 
 // router.push({ name: "Product", params: { productId: 'TODO } });
@@ -29,6 +71,7 @@ if (!isAuthenticated.value) {
             type="text"
             class="form-control"
             id="product-name"
+            v-model="product_name"
             required
             data-test-product-name
           />
@@ -43,6 +86,7 @@ if (!isAuthenticated.value) {
             id="product-description"
             name="description"
             rows="3"
+            v-model="product_description"
             required
             data-test-product-description
           ></textarea>
@@ -54,6 +98,7 @@ if (!isAuthenticated.value) {
             type="text"
             class="form-control"
             id="product-category"
+            v-model="product_category"
             required
             data-test-product-category
           />
@@ -71,6 +116,7 @@ if (!isAuthenticated.value) {
               name="originalPrice"
               step="1"
               min="0"
+              v-model="product_original_price"
               required
               data-test-product-price
             />
@@ -87,6 +133,7 @@ if (!isAuthenticated.value) {
             class="form-control"
             id="product-picture-url"
             name="pictureUrl"
+            v-model="product_picture_url"
             required
             data-test-product-picture
           />
@@ -101,6 +148,7 @@ if (!isAuthenticated.value) {
             class="form-control"
             id="product-end-date"
             name="endDate"
+            v-model="product_end_date"
             required
             data-test-product-end-date
           />
@@ -110,7 +158,7 @@ if (!isAuthenticated.value) {
           <button
             type="submit"
             class="btn btn-primary"
-            disabled
+            v-bind:disabled="!disableButton"
             data-test-submit
           >
             Ajouter le produit
@@ -119,6 +167,7 @@ if (!isAuthenticated.value) {
               class="spinner-border spinner-border-sm"
               role="status"
               aria-hidden="true"
+              :hidden="disableButton"
             ></span>
           </button>
         </div>

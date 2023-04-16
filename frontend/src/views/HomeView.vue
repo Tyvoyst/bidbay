@@ -3,13 +3,13 @@ import { ref, computed } from "vue";
 
 const loading = ref(false);
 const error = ref(false);
-let productList = ref([])
+let productList = ref([]);
 async function fetchProducts() {
   loading.value = true;
   error.value = false;
   try {
     const res = await fetch("http://localhost:3000/api/products");
-    productList.value = await res.json()
+    productList.value = await res.json();
   } catch (e) {
     error.value = true;
   } finally {
@@ -18,8 +18,8 @@ async function fetchProducts() {
 }
 fetchProducts();
 function formatDate(date) {
-    const options = { year: "numeric", month: "long", day: "numeric" };
-    return new Date(date).toLocaleDateString("fr-FR", options);
+  const options = { year: "numeric", month: "long", day: "numeric" };
+  return new Date(date).toLocaleDateString("fr-FR", options);
 }
 </script>
 
@@ -76,7 +76,12 @@ function formatDate(date) {
       Une erreur est survenue lors du chargement des produits.
     </div>
     <div class="row">
-      <div class="col-md-4 mb-4" v-for="i in productList" data-test-product :key="i">
+      <div
+        class="col-md-4 mb-4"
+        v-for="i in productList"
+        data-test-product
+        :key="i"
+      >
         <div class="card">
           <RouterLink :to="{ name: 'Product', params: { productId: i.id } }">
             <img
@@ -95,7 +100,7 @@ function formatDate(date) {
               </RouterLink>
             </h5>
             <p class="card-text" data-test-product-description>
-                {{ i.description }}
+              {{ i.description }}
             </p>
             <p class="card-text">
               Vendeur :
@@ -109,7 +114,9 @@ function formatDate(date) {
             <p class="card-text" data-test-product-date>
               En cours jusqu'au {{ formatDate(i.endDate) }}
             </p>
-            <p class="card-text" data-test-product-price>Prix actuel : {{ i.originalPrice }} €</p>
+            <p class="card-text" data-test-product-price>
+              Prix actuel : {{ i.originalPrice }} €
+            </p>
           </div>
         </div>
       </div>
