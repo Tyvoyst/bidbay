@@ -4,12 +4,29 @@ import { ref, computed } from "vue";
 const loading = ref(false);
 const error = ref(false);
 let productList = ref([]);
+let bidsPrice = ref([]);
+let currentDate = new Date();
+currentDate = currentDate.toLocaleString("fr-FR", {
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+});
+console.log(currentDate);
 async function fetchProducts() {
   loading.value = true;
   error.value = false;
   try {
     const res = await fetch("http://localhost:3000/api/products");
     productList.value = await res.json();
+    for (let i = 0; i < productList.value.length; i++) {
+      let max = 0;
+      for (let j = 0; j < productList.value.at(i).bids.length; j++) {
+        if (max < productList.value.at(i).bids.at(j).price) {
+          max = productList.value.at(i).bids.at(j).price;
+        }
+      }
+      bidsPrice.value.push(max);
+    }
   } catch (e) {
     error.value = true;
   } finally {
@@ -17,6 +34,8 @@ async function fetchProducts() {
   }
 }
 fetchProducts();
+
+
 function formatDate(date) {
   const options = { year: "numeric", month: "long", day: "numeric" };
   return new Date(date).toLocaleDateString("fr-FR", options);
@@ -66,13 +85,13 @@ function formatDate(date) {
       </div>
     </div>
 
-    <div class="text-center mt-4" data-test-loading>
+    <div class="text-center mt-4" data-test-loading v-if="loading">
       <div class="spinner-border" role="status">
         <span class="visually-hidden">Chargement...</span>
       </div>
     </div>
 
-    <div class="alert alert-danger mt-4" role="alert" data-test-error>
+    <div class="alert alert-danger mt-4" role="alert" data-test-error v-if="error.value">
       Une erreur est survenue lors du chargement des produits.
     </div>
     <div class="row">
@@ -111,11 +130,17 @@ function formatDate(date) {
                 {{ i.seller.username }}
               </RouterLink>
             </p>
-            <p class="card-text" data-test-product-date>
+            <p class="card-text" data-test-product-date v-if="formatDate(i.endDate)>currentDate">
               En cours jusqu'au {{ formatDate(i.endDate) }}
             </p>
-            <p class="card-text" data-test-product-price>
-              Prix actuel : {{ i.originalPrice }} €
+            <p class="card-text" data-test-product-date v-else>
+                Terminé
+            </p>
+            <p class="card-text" data-test-product-price v-if="formatDate(i.endDate)>currentDate">
+              Prix de départ : {{ i.originalPrice }} €
+            </p>
+            <p class="card-text" data-test-product-price v-else>
+              Prix actuel : {{ bidsPrice.at(productList.indexOf(i)) }} €
             </p>
           </div>
         </div>
