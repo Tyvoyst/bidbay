@@ -3,7 +3,48 @@ import { ref, computed } from "vue";
 
 const loading = ref(false);
 const error = ref(false);
+let nameFilter = ref("");
+let nameOrder = ref(false);
+let priceOrder = ref(false);
+
+const filteredProductList = computed(() => {
+  let filteredProductList = productList.value;
+
+  if (nameFilter.value.length > 0) {
+    filteredProductList = filteredProductList.filter((i) =>
+      i.name.toLowerCase().includes(nameFilter.value.toLowerCase())
+    );
+  }
+  if (nameOrder.value) {
+    filteredProductList = filteredProductList.sort((i, j) => {
+      let fi = i.name.toLowerCase();
+      let fj = j.name.toLowerCase();
+      if (fi < fj) {
+        return -1;
+      }
+      if (fi > fj) {
+        return 1;
+      }
+      return 0;
+    });
+  }
+
+  if (priceOrder.value) {
+    filteredProductList = filteredProductList.filter((i, j) => {
+      if (i.originalPrice < j.orinigalPrice) {
+        return -1;
+      }
+      if (i.originalPrice > j.orinigalPrice) {
+        return 1;
+      }
+      return 0;
+    });
+  }
+
+  return filteredProductList;
+});
 let productList = ref([]);
+const savedProductList = productList;
 let bidsPrice = ref([]);
 let currentDate = new Date();
 currentDate = currentDate.toLocaleString("fr-FR", {
@@ -29,12 +70,34 @@ async function fetchProducts() {
     }
   } catch (e) {
     error.value = true;
+    console.log(e);
   } finally {
     loading.value = false;
   }
 }
 fetchProducts();
-
+function changeNameOrder() {
+  if (nameOrder.value) {
+    nameOrder.value = false;
+  } else if (priceOrder.value) {
+    priceOrder.value = !priceOrder.value;
+    nameOrder.value = !nameOrder.value;
+  } else {
+    nameOrder.value = !nameOrder.value;
+  }
+  console.log(nameOrder.value + " " + priceOrder.value);
+}
+function changePriceOrder() {
+  if (priceOrder.value) {
+    priceOrder.value = !priceOrder.value;
+  } else if (nameOrder.value) {
+    nameOrder.value = !nameOrder.value;
+    priceOrder.value = !priceOrder.value;
+  } else {
+    priceOrder.value = !priceOrder.value;
+  }
+  console.log(nameOrder.value + " " + priceOrder.value);
+}
 
 function formatDate(date) {
   const options = { year: "numeric", month: "long", day: "numeric" };
@@ -55,6 +118,7 @@ function formatDate(date) {
               type="text"
               class="form-control"
               placeholder="Filtrer par nom"
+              v-model="nameFilter"
               data-test-filter
             />
           </div>
@@ -73,10 +137,17 @@ function formatDate(date) {
           </button>
           <ul class="dropdown-menu dropdown-menu-end">
             <li>
-              <a class="dropdown-item" href="#"> Nom </a>
+              <a class="dropdown-item" href="#" @click="changeNameOrder">
+                Nom
+              </a>
             </li>
             <li>
-              <a class="dropdown-item" href="#" data-test-sorter-price>
+              <a
+                class="dropdown-item"
+                href="#"
+                @click="changePriceOrder"
+                data-test-sorter-price
+              >
                 Prix
               </a>
             </li>
@@ -91,15 +162,20 @@ function formatDate(date) {
       </div>
     </div>
 
-    <div class="alert alert-danger mt-4" role="alert" data-test-error v-if="error.value">
+    <div
+      class="alert alert-danger mt-4"
+      role="alert"
+      data-test-error
+      v-if="error"
+    >
       Une erreur est survenue lors du chargement des produits.
     </div>
     <div class="row">
       <div
         class="col-md-4 mb-4"
-        v-for="i in productList"
+        v-for="i in filteredProductList"
         data-test-product
-        :key="i"
+        :key="i.id"
       >
         <div class="card">
           <RouterLink :to="{ name: 'Product', params: { productId: i.id } }">
@@ -130,13 +206,19 @@ function formatDate(date) {
                 {{ i.seller.username }}
               </RouterLink>
             </p>
-            <p class="card-text" data-test-product-date v-if="formatDate(i.endDate)>currentDate">
+            <p
+              class="card-text"
+              data-test-product-date
+              v-if="formatDate(i.endDate) > currentDate"
+            >
               En cours jusqu'au {{ formatDate(i.endDate) }}
             </p>
-            <p class="card-text" data-test-product-date v-else>
-                Terminé
-            </p>
-            <p class="card-text" data-test-product-price v-if="formatDate(i.endDate)>currentDate">
+            <p class="card-text" data-test-product-date v-else>Terminé</p>
+            <p
+              class="card-text"
+              data-test-product-price
+              v-if="formatDate(i.endDate) > currentDate"
+            >
               Prix de départ : {{ i.originalPrice }} €
             </p>
             <p class="card-text" data-test-product-price v-else>
