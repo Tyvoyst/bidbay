@@ -2,6 +2,7 @@
 import { ref, computed } from "vue";
 import { useRoute, useRouter, RouterLink } from "vue-router";
 import { useAuthStore } from "../store/auth";
+import VueCountdown from "@chenfengyuan/vue-countdown";
 
 const { isAuthenticated, isAdmin, userData, token } = useAuthStore();
 
@@ -11,8 +12,11 @@ const router = useRouter();
 const productId = ref(route.params.productId);
 const loading = ref(false);
 const error = ref(false);
-let product = ref();
-let user = ref();
+const product = ref();
+const user = ref();
+const time = ref();
+const now = ref();
+const endDate = ref();
 async function fetchProduct() {
   loading.value = true;
   error.value = false;
@@ -21,6 +25,12 @@ async function fetchProduct() {
       "http://localhost:3000/api/products/" + productId.value
     );
     product.value = await res.json();
+    now.value = computed(() => new Date());
+    endDate.value = formatDate(new Date(product.value.endDate));
+    time.value = computed(() => endDate.value - now.value);
+    console.log(now.value);
+    console.log(endDate.value);
+    console.log(time.value);
   } catch (e) {
     error.value = true;
   } finally {
@@ -32,24 +42,30 @@ function formatDate(date) {
   const options = { year: "numeric", month: "long", day: "numeric" };
   return new Date(date).toLocaleDateString("fr-FR", options);
 }
+
 </script>
 
 <template>
   <div class="row">
-    <div class="text-center mt-4" data-test-loading>
+    <div class="text-center mt-4" data-test-loading v-if="loading">
       <div class="spinner-border" role="status">
         <span class="visually-hidden">Chargement...</span>
       </div>
     </div>
 
-    <div class="alert alert-danger mt-4" role="alert" data-test-error>
+    <div
+      class="alert alert-danger mt-4"
+      role="alert"
+      data-test-error
+      v-if="error"
+    >
       Une erreur est survenue lors du chargement des produits.
     </div>
     <div class="row" data-test-product>
       <!-- Colonne de gauche : image et compte à rebours -->
       <div class="col-lg-4">
         <img
-          :src="product.pictureUrl"
+          :src="product.pictureUrl ? product.pictureUrl : ''"
           alt=""
           class="img-fluid rounded mb-3"
           data-test-product-picture
@@ -60,7 +76,9 @@ function formatDate(date) {
           </div>
           <div class="card-body">
             <h6 class="card-subtitle mb-2 text-muted" data-test-countdown>
-              Temps restant : {{ countdown }}
+              <vue-countdown :time="time.value" :interval="100" v-slot="{ days, hours, minutes, seconds }">
+                Temps restant : {{ days }} jours, {{ hours }} heures, {{ minutes }} minutes, {{ seconds }} secondes
+              </vue-countdown>
             </h6>
           </div>
         </div>
@@ -74,7 +92,7 @@ function formatDate(date) {
               {{ product.name }}
             </h1>
           </div>
-          <div class="col-lg-6 text-end">
+          <div class="col-lg-6 text-end" v-if="isAdmin && isAuthenticated">
             <RouterLink
               :to="{ name: 'ProductEdition', params: { productId: productId } }"
               class="btn btn-primary"
@@ -83,7 +101,11 @@ function formatDate(date) {
               Editer
             </RouterLink>
             &nbsp;
-            <button class="btn btn-danger" data-test-delete-product>
+            <button
+              class="btn btn-danger"
+              data-test-delete-product
+              v-if="isAdmin && isAuthenticated"
+            >
               Supprimer
             </button>
           </div>
@@ -171,3 +193,15 @@ function formatDate(date) {
     </div>
   </div>
 </template>
+<script>
+export default {
+  data() {
+    const now = new Date();
+    const newYear = new Date(now.getFullYear() + 1, 0, 1);
+
+    return {
+      time: newYear - now,
+    };
+  },
+};
+</script>

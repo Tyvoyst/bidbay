@@ -7,6 +7,11 @@
   resolved "https://registry.npmjs.org/@babel/parser/-/parser-7.21.4.tgz"
   integrity sha512-alVJj7k7zIxqBZ7BTRhz0IqJFxW1VJbm6N8JbcYhQ186df9ZBPbZBmWSqAMXwHGsCJdYks7z/voa3ibiS5bCIw==
 
+"@chenfengyuan/vue-countdown@^2.1.1":
+  version "2.1.1"
+  resolved "https://registry.npmjs.org/@chenfengyuan/vue-countdown/-/vue-countdown-2.1.1.tgz"
+  integrity sha512-HARJ62AFyxrBH/nMzwuaHUd20waKLN07mjyo2+8YfVouALkFERNRabqt5i3lfp3OISHb2054lWgyaX9L60hdPw==
+
 "@colors/colors@1.5.0":
   version "1.5.0"
   resolved "https://registry.npmjs.org/@colors/colors/-/colors-1.5.0.tgz"
@@ -2324,7 +2329,7 @@ vue-router@^4.1.6:
   dependencies:
     "@vue/devtools-api" "^6.4.5"
 
-vue@^3.2.0, vue@^3.2.25, vue@^3.2.45, vue@3.2.47:
+vue@^3.0.0, vue@^3.2.0, vue@^3.2.25, vue@^3.2.45, vue@3.2.47:
   version "3.2.47"
   resolved "https://registry.npmjs.org/vue/-/vue-3.2.47.tgz"
   integrity sha512-60188y/9Dc9WVrAZeUVSDxRQOZ+z+y5nO2ts9jWXSTkMvayiWxCWOWtBQoYjLeccfXkiiPZWAHcV+WTPhkqJHQ==

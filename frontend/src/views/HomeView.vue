@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed } from "vue";
 
-const loading = ref(false);
+const loading = ref(true);
 const error = ref(false);
 let nameFilter = ref("");
 let nameOrder = ref(false);
@@ -52,7 +52,6 @@ currentDate = currentDate.toLocaleString("fr-FR", {
   month: "long",
   year: "numeric",
 });
-console.log(currentDate);
 async function fetchProducts() {
   loading.value = true;
   error.value = false;
@@ -85,7 +84,6 @@ function changeNameOrder() {
   } else {
     nameOrder.value = !nameOrder.value;
   }
-  console.log(nameOrder.value + " " + priceOrder.value);
 }
 function changePriceOrder() {
   if (priceOrder.value) {
@@ -96,7 +94,6 @@ function changePriceOrder() {
   } else {
     priceOrder.value = !priceOrder.value;
   }
-  console.log(nameOrder.value + " " + priceOrder.value);
 }
 
 function formatDate(date) {

@@ -1,17 +1,50 @@
 <script setup>
 import { useAuthStore } from "../store/auth";
 import { useRoute, useRouter } from "vue-router";
-import { ref } from "vue";
+import {computed, ref} from "vue";
 
 const { isAuthenticated, token } = useAuthStore();
 const router = useRouter();
 const route = useRoute();
+const error = ref(false);
 
+const product_name = ref("");
+const product_description = ref("");
+const product_category = ref("");
+const product_original_price = ref("");
+const product_picture_url = ref("");
+const product_end_date = ref("");
+
+const product = ref();
+
+async function fetchProduct() {
+  error.value = false;
+  try {
+    console.log(productId.value);
+    const res = await fetch(
+      "http://localhost:3000/api/products/" + productId.value
+    );
+    product.value = await res.json();
+  } catch (e) {
+    error.value = true;
+  }
+}
+fetchProduct();
 if (!isAuthenticated.value) {
   router.push({ name: "Login" });
 }
-
+const disableButton = computed(() => {
+  return (
+    product_name.value.length > 0 &&
+    product_description.value.length > 0 &&
+    product_category.value.length &&
+    product_original_price.value > 0 &&
+    product_picture_url.value.length > 0 &&
+    product_end_date.value.length > 0
+  );
+});
 const productId = ref(route.params.productId);
+
 </script>
 
 <template>
@@ -20,7 +53,7 @@ const productId = ref(route.params.productId);
   <div class="row justify-content-center">
     <div class="col-md-6">
       <form>
-        <div class="alert alert-danger mt-4" role="alert" data-test-error>
+        <div class="alert alert-danger mt-4" role="alert" data-test-error v-if="error">
           Une erreur est survenue
         </div>
 
@@ -32,6 +65,8 @@ const productId = ref(route.params.productId);
             id="product-name"
             required
             data-test-product-name
+            v-model="product_name"
+            :value="product.value.name"
           />
         </div>
 
@@ -46,6 +81,7 @@ const productId = ref(route.params.productId);
             rows="3"
             required
             data-test-product-description
+            v-model="product_description"
           ></textarea>
         </div>
 
@@ -57,6 +93,7 @@ const productId = ref(route.params.productId);
             id="product-category"
             required
             data-test-product-category
+            v-model="product_category"
           />
         </div>
 
@@ -74,6 +111,7 @@ const productId = ref(route.params.productId);
               min="0"
               required
               data-test-product-price
+              v-model="product_original_price"
             />
             <span class="input-group-text">€</span>
           </div>
@@ -90,6 +128,7 @@ const productId = ref(route.params.productId);
             name="pictureUrl"
             required
             data-test-product-picture
+            v-model="product_picture_url"
           />
         </div>
 
@@ -104,6 +143,7 @@ const productId = ref(route.params.productId);
             name="endDate"
             required
             data-test-product-end-date
+            v-model="product_end_date"
           />
         </div>
 
@@ -111,7 +151,7 @@ const productId = ref(route.params.productId);
           <button
             type="submit"
             class="btn btn-primary"
-            disabled
+            v-bind:disabled="!disableButton"
             data-test-submit
           >
             Modifier le produit
@@ -120,6 +160,7 @@ const productId = ref(route.params.productId);
               role="status"
               aria-hidden="true"
               data-test-spinner
+              :hidden="disableButton"
             ></span>
           </button>
         </div>

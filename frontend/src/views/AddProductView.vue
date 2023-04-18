@@ -9,12 +9,13 @@ const router = useRouter();
 if (!isAuthenticated.value) {
   router.push({ name: "Login" });
 }
-let product_name = ref("");
-let product_description = ref("");
-let product_category = ref("");
-let product_original_price = ref("");
-let product_picture_url = ref("");
-let product_end_date = ref("");
+const product_name = ref("");
+const product_description = ref("");
+const product_category = ref("");
+const product_original_price = ref("");
+const product_picture_url = ref("");
+const product_end_date = ref("");
+const error = ref(false);
 
 const disableButton = computed(() => {
   return (
@@ -26,33 +27,32 @@ const disableButton = computed(() => {
     product_end_date.value.length > 0
   );
 });
-async function postProduct() {
-  const res = await fetch("http://localhost:3000/api/products", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      name: product_name.value,
-      description: product_description.value,
-      category: product_category.value,
-      originalPrice: product_original_price.value,
-      pictureUrl: product_picture_url.value,
-      endDate: product_end_date.value,
-      sellerId: route.params.userId,
-      createdAt: Date(),
-      updatedAt: Date(),
-      seller: {
-        id: route.params.userId,
-        username: route.params.username,
+function postProduct() {
+  try {
+    router.push({
+      name: "Product",
+      params: {
+        name: product_name.value,
+        description: product_description.value,
+        category: product_category.value,
+        originalPrice: product_original_price.value,
+        pictureUrl: product_picture_url.value,
+        endDate: product_end_date.value,
+        sellerId: route.params.userId,
+        createdAt: Date(),
+        updatedAt: Date(),
+        seller: {
+          id: route.params.userId,
+          username: route.params.username,
+        },
+        bids: [],
       },
-      bids: [],
-    }),
-  });
-  return await res.json();
+    });
+  } catch (e) {
+    console.log(e);
+    error.value = true;
+  }
 }
-
-// router.push({ name: "Product", params: { productId: 'TODO } });
 </script>
 
 <template>
@@ -61,7 +61,7 @@ async function postProduct() {
   <div class="row justify-content-center">
     <div class="col-md-6">
       <form>
-        <div class="alert alert-danger mt-4" role="alert" data-test-error>
+        <div class="alert alert-danger mt-4" role="alert" data-test-error v-if="error">
           Une erreur s'est produite
         </div>
 
@@ -160,6 +160,7 @@ async function postProduct() {
             class="btn btn-primary"
             v-bind:disabled="!disableButton"
             data-test-submit
+            onclick="postProduct"
           >
             Ajouter le produit
             <span

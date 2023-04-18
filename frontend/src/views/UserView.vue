@@ -9,9 +9,10 @@ const { isAuthenticated, userData } = useAuthStore();
 const router = useRouter();
 const route = useRoute();
 
-let user = ref();
-const loading = ref(false);
+const user = ref();
+const loading = ref(null);
 const error = ref(null);
+const valid = ref(null);
 
 let userId = computed(() => route.params.userId);
 
@@ -22,8 +23,17 @@ async function fetchUser() {
   loading.value = true;
   error.value = false;
   try {
-    const res = await fetch("http://localhost:3000/api/users/" + userId.value);
-    user.value = await res.json();
+    if (userId.value === "me") {
+      const res = await fetch("http://localhost:3000/api/users/" +  userData.value.id);
+      user.value = await res.json();
+    } else {
+      const res = await fetch("http://localhost:3000/api/users/" + userId.value);
+      console.log(userId.value);
+      user.value = await res.json();
+    }
+    console.log(user.value.message)
+    user.value.message === "User not found" ? (valid.value = false) : (valid.value = true);
+    console.log(valid.value);
   } catch (e) {
     error.value = true;
   } finally {
@@ -36,21 +46,21 @@ fetchUser();
 <template>
   <div>
     <h1 class="text-center" data-test-username>
-      Utilisateur {{ user.username }}
-      <span class="badge rounded-pill bg-primary" data-test-admin>Admin</span>
+      {{ user.username ? "Utilisateur "+user.username : "Cet utilisateur n'existe pas" }}
+      <span class="badge rounded-pill bg-primary" data-test-admin v-if="user.admin===true">Admin</span>
     </h1>
-    <div class="text-center" data-test-loading>
+    <div class="text-center" data-test-loading v-if="loading">
       <span class="spinner-border"></span>
       <span>Chargement en cours...</span>
     </div>
-    <div class="alert alert-danger mt-3" data-test-error>
+    <div class="alert alert-danger mt-3" data-test-error v-if="error || !valid">
       Une erreur est survenue
     </div>
-    <div data-test-view>
+    <div data-test-view v-if="valid">
       <div class="row">
         <div class="col-lg-6">
           <h2>Produits</h2>
-          <div class="row">
+          <div class="row" v-if="user.products !== []">
             <div
               class="col-md-6 mb-6 py-2"
               v-for="i in user.products"
