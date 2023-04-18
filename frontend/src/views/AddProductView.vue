@@ -160,7 +160,7 @@ function postProduct() {
             class="btn btn-primary"
             v-bind:disabled="!disableButton"
             data-test-submit
-            onclick="postProduct"
+            v-on:click="postProduct"
           >
             Ajouter le produit
             <span

@@ -73,10 +73,9 @@ function formatDate(date) {
           </div>
           <div class="card-body">
             <h6 class="card-subtitle mb-2 text-muted" data-test-countdown>
-              <vue-countdown :time="time" :interval="100" v-slot="{ days, hours, minutes, seconds }" v-if="time.value>0">
+              <vue-countdown :time="time" :interval="100" v-slot="{ days, hours, minutes, seconds }">
                 Temps restant : {{ days }} jours, {{ hours }} heures, {{ minutes }} minutes, {{ seconds }} secondes
               </vue-countdown>
-              <p v-else>Terminé</p>
             </h6>
           </div>
         </div>
