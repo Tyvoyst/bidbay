@@ -14,9 +14,9 @@ const loading = ref(false);
 const error = ref(false);
 const product = ref();
 const user = ref();
-const time = ref();
-const now = ref();
-const endDate = ref();
+const now = new Date();
+let endDate = "";
+let time;
 async function fetchProduct() {
   loading.value = true;
   error.value = false;
@@ -25,12 +25,10 @@ async function fetchProduct() {
       "http://localhost:3000/api/products/" + productId.value
     );
     product.value = await res.json();
-    now.value = computed(() => new Date());
-    endDate.value = formatDate(new Date(product.value.endDate));
-    time.value = computed(() => endDate.value - now.value);
-    console.log(now.value);
-    console.log(endDate.value);
-    console.log(time.value);
+    endDate = new Date(product.value.endDate);
+    time = computed(() => endDate - now);
+    console.log(time.value)
+    console.log(endDate);
   } catch (e) {
     error.value = true;
   } finally {
@@ -42,7 +40,6 @@ function formatDate(date) {
   const options = { year: "numeric", month: "long", day: "numeric" };
   return new Date(date).toLocaleDateString("fr-FR", options);
 }
-
 </script>
 
 <template>
@@ -76,9 +73,10 @@ function formatDate(date) {
           </div>
           <div class="card-body">
             <h6 class="card-subtitle mb-2 text-muted" data-test-countdown>
-              <vue-countdown :time="time.value" :interval="100" v-slot="{ days, hours, minutes, seconds }">
+              <vue-countdown :time="time" :interval="100" v-slot="{ days, hours, minutes, seconds }" v-if="time.value>0">
                 Temps restant : {{ days }} jours, {{ hours }} heures, {{ minutes }} minutes, {{ seconds }} secondes
               </vue-countdown>
+              <p v-else>Terminé</p>
             </h6>
           </div>
         </div>
